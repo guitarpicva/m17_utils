@@ -15,6 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 add_executable(testm17utils
   main.cpp
   m17_utils.h
+  README.md
 
 )
 
