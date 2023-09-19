@@ -3,15 +3,14 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QDebug>
 
-// CRC code adapted from http://www.zorc.breitbandkatze.de/crctester.c
-
-// CRC tester v1.3 written on 4th of February 2003 by Sven Reifegerste (zorc/reflex)
-
-// CRC defautls for:
-// width=16 poly=0x5935 init=0xffff refin=false refout=false xorout=0x0000 check=0x772b
-// residue=0x0000 name="CRC-16/M17"
-
+/** CRC code adapted from http://www.zorc.breitbandkatze.de/crctester.c
+ *  CRC tester v1.3 written on 4th of February 2003 by Sven Reifegerste (zorc/reflex)
+ *  CRC configuration for M17:
+ *  width=16 poly=0x5935 init=0xffff refin=false refout=false xorout=0x0000 check=0x772b
+ *  residue=0x0000 name="CRC-16/M17"
+*/
 const int order = 16;
 const unsigned long polynom = 0x5935;
 const int direct = 1;
@@ -20,16 +19,18 @@ const unsigned long crcxor = 0x0000;
 const int refin = 0;
 const int refout = 0;
 
-// internal global CRC values:
+/** internal global CRC values: */
 // compute constant bit masks for whole CRC and CRC high bit
 unsigned long crcmask = ((((unsigned long)1<<(order-1))-1)<<1)|1;;
 unsigned long crchighbit = (unsigned long)1<<(order-1);
 unsigned long crcinit_direct = crcinit;
 // END CRC Defaults
 
-
+/** character map used to encode textual addresses into base 40 */
 const QString charMap = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -/. ";
-static QByteArray m17_addr_encode(const QByteArray address) {
+
+/** encode an address (call sign) in base 40 */
+static QByteArray m17_addr_qencode(const QByteArray address) {
     QString numout;
 
     long value = 0, encoded = 0;
@@ -60,7 +61,8 @@ static QByteArray m17_addr_encode(const QByteArray address) {
     return numout.toLocal8Bit(); // empty is error!
 }
 
-static QByteArray m17_addr_decode(const QByteArray encoded) {
+/** decode a base 40 address (call sign) into plain text */
+static QByteArray m17_addr_qdecode(const QByteArray encoded) {
     //"0000038fe411"
     //qDebug()<<"decode:"<<encoded.toHex();
     QString out = "";
@@ -87,6 +89,43 @@ static QByteArray m17_addr_decode(const QByteArray encoded) {
     return out.toLocal8Bit();
 }
 
+/** stdlib : encode an address (call sign) in base 40 */
+static ulong m17_addr_stdlib_encode(const std::string address) {
+    std::string numout;
+
+    long value = 0, encoded = 0;
+    if(address.length() < 10) {
+        if(address == "ALL") {
+            encoded = 0xFFFFFFFFFFFF;
+        }
+        else {
+            encoded = 0;
+        }
+        for (int i = (address.length() - 1); i > -1; --i) {
+            value = charMap.toStdString().find(address[i]);
+            qDebug()<<"Value:"<<value<<address[i];
+            if(value < 0) {
+                value = 0;
+            }
+            encoded = (encoded * 40) + value;
+            //qDebug()<<"Encoded:"<<encoded;
+        }
+        qDebug()<<"Encoded:"<<encoded;
+    }
+    return encoded;
+
+    //        // now load into a std::string
+    //numout = std::to_string(encoded);
+    //        qDebug()<<"numout std::string:"<<numout.c_str();
+    //        const int MAX = 12 - numout.length();
+    //        for(int i = 0; i < MAX; ++i) {
+    //            numout.insert(0, "0");
+    //        }
+    //    }
+    //    return numout; // empty is error!
+}
+
+/** Qt version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_qbuild(const QByteArray data) {
 
     unsigned long i, j, c, bit, len;
@@ -119,6 +158,7 @@ static quint16 crc_ccitt_qbuild(const QByteArray data) {
 
 // width=16 poly=0x5935 init=0xffff refin=false refout=false xorout=0x0000 check=0x772b
 // residue=0x0000 name="CRC-16/M17"
+/** C version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_build(unsigned char *data, ulong len) {
 
     unsigned long crcinit_direct = crcinit;
@@ -154,6 +194,7 @@ static quint16 crc_ccitt_build(unsigned char *data, ulong len) {
 
 // width=16 poly=0x5935 init=0xffff refin=false refout=false xorout=0x0000 check=0x772b
 // residue=0x0000 name="CRC-16/M17"
+/** C++ stdlib version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_cppbuild(std::string data) {
     unsigned long len = data.length();
     unsigned long crcinit_direct = crcinit;

@@ -6,11 +6,12 @@
 int main(int argc, char *argv[])
 {
     const QByteArray addr("AB4MW");
-    qDebug()<<"Encode AB4MW:"<<m17_addr_encode(addr);
-    qDebug()<<"Decode EE:"<<m17_addr_decode(QByteArray::fromHex("EE6B28000000"));
-    qDebug()<<"Decode 0:"<<m17_addr_decode(QByteArray::fromHex("000000000000"));
-    qDebug()<<"Decode FF:"<<m17_addr_decode(QByteArray::fromHex("FFFFFFFFFFFF"));
-    qDebug()<<"Decode Encoded AB4MW:"<<m17_addr_decode(QByteArray::fromHex("0000038fe411"));
+    qDebug()<<"Encode AB4MW Qt:"<<m17_addr_qencode(addr);
+    qDebug()<<"Encode AB4MW stdlib:"<<QString::number(m17_addr_stdlib_encode(addr.toStdString()), 16);
+    qDebug()<<"Decode EE:"<<m17_addr_qdecode(QByteArray::fromHex("EE6B28000000"));
+    qDebug()<<"Decode 0:"<<m17_addr_qdecode(QByteArray::fromHex("000000000000"));
+    qDebug()<<"Decode FF:"<<m17_addr_qdecode(QByteArray::fromHex("FFFFFFFFFFFF"));
+    qDebug()<<"Decode Encoded AB4MW:"<<m17_addr_qdecode(QByteArray::fromHex("0000038fe411"));
 
     qDebug()<<"qCRC for 123456789:"<<crc_ccitt_qbuild(QString("123456789").toLatin1());
     qDebug()<<"qCRC for A:"<<crc_ccitt_qbuild(QString("A").toLatin1());
