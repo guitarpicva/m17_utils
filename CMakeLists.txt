@@ -16,7 +16,7 @@ add_executable(testm17utils
   main.cpp
   m17_utils.h
   README.md
-
+  LICENSE
 )
 
 target_link_libraries(testm17utils Qt${QT_VERSION_MAJOR}::Core)
