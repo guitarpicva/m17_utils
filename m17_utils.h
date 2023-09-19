@@ -58,7 +58,7 @@ static QByteArray m17_addr_qencode(const QByteArray address) {
             numout.prepend('0');
         }
     }
-    return numout.toLocal8Bit(); // empty is error!
+    return QByteArray::fromHex(numout.toLocal8Bit()); // empty is error!
 }
 
 /** decode a base 40 address (call sign) into plain text */
@@ -91,8 +91,6 @@ static QByteArray m17_addr_qdecode(const QByteArray encoded) {
 
 /** stdlib : encode an address (call sign) in base 40 */
 static ulong m17_addr_stdlib_encode(const std::string address) {
-    std::string numout;
-
     long value = 0, encoded = 0;
     if(address.length() < 10) {
         if(address == "ALL") {
@@ -103,26 +101,16 @@ static ulong m17_addr_stdlib_encode(const std::string address) {
         }
         for (int i = (address.length() - 1); i > -1; --i) {
             value = charMap.toStdString().find(address[i]);
-            qDebug()<<"Value:"<<value<<address[i];
+            //qDebug()<<"Value:"<<value<<address[i];
             if(value < 0) {
                 value = 0;
             }
             encoded = (encoded * 40) + value;
             //qDebug()<<"Encoded:"<<encoded;
         }
-        qDebug()<<"Encoded:"<<encoded;
+        //qDebug()<<"Encoded:"<<encoded;
     }
-    return encoded;
-
-    //        // now load into a std::string
-    //numout = std::to_string(encoded);
-    //        qDebug()<<"numout std::string:"<<numout.c_str();
-    //        const int MAX = 12 - numout.length();
-    //        for(int i = 0; i < MAX; ++i) {
-    //            numout.insert(0, "0");
-    //        }
-    //    }
-    //    return numout; // empty is error!
+    return encoded; // zero is an error
 }
 
 /** Qt version of building a CRC value based on CRC-16/M17 */
