@@ -43,15 +43,13 @@ static QByteArray m17_addr_qencode(const QByteArray address) {
         }
         for (int i = (address.length() - 1); i > -1; --i) {
             value = charMap.indexOf(address[i]);
-            //qDebug()<<"Value:"<<value<<address[i];
             if(value < 0) {
                 value = 0;
             }
             encoded = (encoded * 40) + value;
-            //qDebug()<<"Encoded:"<<encoded;
         }
 
-        // now load into a QByteArray
+        // now load into a QString to convert to bytes
         numout = QString::number(encoded, 16);
         const int MAX = 12 - numout.length();
         for(int i = 0; i < MAX; ++i) {
@@ -113,6 +111,34 @@ static ulong m17_addr_stdlib_encode(const std::string address) {
     return encoded; // zero is an error
 }
 
+/** decode a base 40 address (call sign) into plain text */
+static std::string m17_addr_stdlib_decode(ulong encoded) {
+    //"0000038fe411"
+    //qDebug()<<"decode:"<<encoded.toHex();
+    std::string out = "";
+    //ulong enc = std::stoul(encoded, 0, 16);
+    qDebug()<<"encoded:"<<encoded;//<<encoded.toHex().toLong(0, 16);
+    if(encoded == 0xFFFFFFFFFFFF) {
+        out = "ALL";
+    }
+    else if (encoded == 0) {
+        out = "RESERVED";
+    }
+    else if(encoded >= 0xEE6B28000000) {
+        out = "RESERVED";
+    }
+    else {
+        while (encoded > 0) {
+            //qDebug()<<"char:"<<charMap[enc % 40];
+            out = out + charMap.toStdString()[encoded % 40];
+            encoded = encoded / 40;
+            //qDebug()<<"next enc:"<<enc;
+        }
+    }
+    qDebug()<<"stdlib out:"<<out.c_str();
+    return out;
+}
+
 /** Qt version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_qbuild(const QByteArray data) {
 
@@ -149,8 +175,6 @@ static quint16 crc_ccitt_qbuild(const QByteArray data) {
 /** C version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_build(unsigned char *data, ulong len) {
 
-    unsigned long crcinit_direct = crcinit;
-
     unsigned long i, j, c, bit;
     unsigned long crc = crcinit;
 
@@ -185,11 +209,8 @@ static quint16 crc_ccitt_build(unsigned char *data, ulong len) {
 /** C++ stdlib version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_cppbuild(std::string data) {
     unsigned long len = data.length();
-    unsigned long crcinit_direct = crcinit;
-
     unsigned long i, j, c, bit;
     unsigned long crc = crcinit;
-
     unsigned char * p = (unsigned char*)data.c_str();
 
     // fast bit by bit algorithm without augmented zero bytes.

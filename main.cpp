@@ -11,7 +11,8 @@ int main(int argc, char *argv[])
     qDebug()<<"Decode EE:"<<m17_addr_qdecode(QByteArray::fromHex("EE6B28000000"));
     qDebug()<<"Decode 0:"<<m17_addr_qdecode(QByteArray::fromHex("000000000000"));
     qDebug()<<"Decode FF:"<<m17_addr_qdecode(QByteArray::fromHex("FFFFFFFFFFFF"));
-    qDebug()<<"Decode Encoded AB4MW:"<<m17_addr_qdecode(QByteArray::fromHex("0000038fe411"));
+    qDebug()<<"Decode Qt Encoded AB4MW:"<<m17_addr_qdecode(QByteArray::fromHex("0000038fe411"));
+    qDebug()<<"Decode stdlib Encoded AB4MW:"<<m17_addr_stdlib_decode(59761681u).c_str();
 
     qDebug()<<"qCRC for 123456789:"<<crc_ccitt_qbuild(QString("123456789").toLatin1());
     qDebug()<<"qCRC for A:"<<crc_ccitt_qbuild(QString("A").toLatin1());
