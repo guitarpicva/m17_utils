@@ -9,11 +9,15 @@ CRC generation
 
 Address conversion to base 40 notation
 
-Coming:
+Link Setup Frame generation at least for Qt
 
-Link Setup Frame generation
+Coming soon:
 
 Data Frame generation
+
+
+To use, include the m17_utils and one of c, cpp, or qt
+depending on your project needs.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
