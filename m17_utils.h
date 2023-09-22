@@ -182,6 +182,30 @@ static uint64_t m17_addr_cencode(const char *address, uint32_t len)
 
     return (uint64_t) encoded;
 }
+
+/** decode a base 40 address (call sign) into plain text */
+static void m17_addr_cdecode(char *out, uint64_t encoded) {
+    //"0000038fe411"
+    //qDebug()<<"decode:"<<encoded.toHex();
+    //ulong enc = std::stoul(encoded, 0, 16);
+    //qDebug()<<"encoded:"<<encoded;//<<encoded.toHex().toLong(0, 16);
+    if(encoded == 0xFFFFFFFFFFFF) {
+        strncpy(out, "ALL", 3);
+    }
+    else if ((encoded == 0) || (encoded >= 0xEE6B28000000)){
+        strncpy(out, "RESERVED", 8);
+    }
+    else {
+        while (encoded > 0) {
+            //qDebug()<<"char:"<<c_charMap[encoded % 40];
+            strncat(out, &c_charMap[encoded % 40], 1);
+            encoded = encoded / 40;
+            //qDebug()<<"next enc:"<<encoded;
+        }
+    }
+    //qDebug()<<"c decode out:"<<out;
+}
+
 /** Qt version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_qbuild(const QByteArray data) {
     unsigned long i, j, c, bit, len;

@@ -41,5 +41,9 @@ int main(int argc, char *argv[])
     qDebug()<<"qLICH for ABCDEFGHIJKLMNOPQRSTUVWXYZ0123 5"<<build_qLICH(LSF, 5).toHex();
 
     qDebug()<<"Encode AB4MW c:"<<m17_addr_cencode(addr.toStdString().c_str(), addr.length());
+    char cdecoded[9];
+    qDebug()<<"cdecoded array:"<<QString(cdecoded).toLatin1();
+    m17_addr_cdecode(cdecoded, 59761681u);
+    qDebug()<<"Decode AB4MW c:"<<cdecoded;
     return 0;
 }
