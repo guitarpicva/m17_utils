@@ -1,6 +1,8 @@
 //#include <QCoreApplication>
-#include "m17_utils.h"
-#include <stdlib.h>
+#include "m17_qt_utils.h"
+#include "m17_c_utils.h"
+#include "m17_cpp_utils.h"
+//#include <stdlib.h>
 #include <QDebug>
 
 int main(int argc, char *argv[])
@@ -31,7 +33,7 @@ int main(int argc, char *argv[])
     const QByteArray LSF = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123";
 
     qDebug()<<"LSF Qt test:"<<build_qLSF(m17_addr_qencode("AB4MW"), m17_addr_qencode("G4KLX"), "12345678901234").toHex();
-    qDebug()<<"LSF stdlib test:"<<build_cppLSF(m17_addr_stdlib_encode("AB4MW"), m17_addr_stdlib_encode("G4KLX"), "12345678901234");
+    qDebug()<<"LSF stdlib test:"<<build_cpp_LSF(m17_addr_stdlib_encode("AB4MW"), m17_addr_stdlib_encode("G4KLX"), "12345678901234");
 
     qDebug()<<"qLICH for ABCDEFGHIJKLMNOPQRSTUVWXYZ0123 0"<<build_qLICH(LSF, 0).toHex();
     qDebug()<<"qLICH for ABCDEFGHIJKLMNOPQRSTUVWXYZ0123 1"<<build_qLICH(LSF, 1).toHex();
