@@ -117,10 +117,11 @@ static QByteArray build_qLSF(QByteArray dest, QByteArray source, QByteArray meta
     case 3: mask += VOICEDATA; break;
     }
     //qDebug()<<"Data Mask:"<<mask;
-    QByteArray temp;
+    QByteArray temp; // get the mask into the array
     temp.setNum(mask, 16);
     //qDebug()<<"Temp:"<<temp;
     out.append(QByteArray::fromHex(temp));
+    // then append the meta data
     out.append(meta);
     // now add the CRC to the end
     temp.clear();
@@ -192,6 +193,51 @@ static QByteArray build_qLICH(const QByteArray lsf, const int lich_cnt)
     }
     out = out.mid(4); // remove the length int on the front rom the first <<
     //qDebug()<<"LICH:"<<out;
+    return out;
+}
+
+static QByteArray build_qstreamFrame(QByteArray dest, QByteArray source, QByteArray meta, QByteArray data)
+{
+    const char ba_ZERO(0x00);
+    // build LSF first using dest, source, and meta
+    const QByteArray lsf = build_qLSF(m17_addr_qencode(dest), m17_addr_qencode(source), meta);
+    QByteArray out = lsf;
+    //qDebug()<<"out=lsf:"<<out;
+    // sever data into 16 byte chunks for frame building exercise below
+    quint32 chunkCount = data.length() / 16;
+    if((data.length() % 16) > 0) ++chunkCount;
+    //qDebug()<<data.length()<<data.length()/16<<chunkCount<<dest<<source<<meta<<data;
+    // for each chunk build the frame with LICH + Frame # w/EOS Flag, 16 bytes of data and 2 byte CRC
+    QByteArray chunk;
+    chunk.reserve(16);
+    for(quint32 i = 0; i < chunkCount; ++i) {
+        //chunk.fill(0x00, 16); // fills with zeros for each iteration
+        chunk = data.mid(i * 16, 16); // may return less than 16 bytes
+        quint32 max = 16 - chunk.length();
+        //qDebug()<<"i:"<<i<<chunk<<chunk.length();
+        // add zeros to explicitly extend the size of the QByteArray
+        for(quint32 j = 0; j < max; ++j) {
+            // pad the last batch with zeros
+           //qDebug()<<chunk.length()<<"pad end:";
+            chunk.append(ba_ZERO);
+        }
+        //qDebug()<<"out b4 chunk:"<<out.toHex();
+        //qDebug()<<"chunk:"<<chunk.toHex()<<chunk.length()<<"i%6:"<<i%6;
+        const quint16 frameNum = (quint16)i;
+        //qDebug()<<"lich:"<<build_qLICH(lsf, i%6).toHex();
+        out.append(build_qLICH(lsf, i%6));
+        if(i == (chunkCount - 1)) { // last one so set EOS bit
+            //qDebug()<<"framenum EOS"<<frameNum + 32768<<QByteArray::fromHex(QString::number(frameNum + 32768, 16).toLatin1());
+            out.append(QByteArray::fromHex(QString::number(frameNum + 32768, 16).toLatin1())).append(chunk);
+        }
+        else {
+            if(frameNum < 256) out.append(ba_ZERO);
+            out.append(QByteArray::fromHex(QString::number(frameNum, 16).toLatin1()).append(chunk));
+        }
+        quint16 crc = crc_ccitt_qbuild(out.mid(6));
+        QByteArray CRC;
+        out.append(QByteArray::fromHex(CRC.setNum(crc, 16)));
+    }
     return out;
 }
 #endif // M17_QT_UTILS_H
