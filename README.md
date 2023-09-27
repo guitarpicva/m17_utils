@@ -21,7 +21,7 @@ Coming soon:
 Data Frame generation
 
 
-To use, include the m17_utils and one of c, cpp, or qt
+To use, include the m17_utils.h and one of c, cpp, or qt header file
 depending on your project needs.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -29,7 +29,5 @@ depending on your project needs.
 PLEASE TAKE NOTE THAT FOR THE TIME BEING:
 The main.cpp file includes some Qt libraries and
 the CMakeLists.txt also includes Qt6::Core.  That is for
-ease of testing for me.
-
-Naturally, you can cut out what you don't need as required
-for your project.
+ease of testing for me.  Naturally, you can cut out what you don't 
+need as required for your project.
