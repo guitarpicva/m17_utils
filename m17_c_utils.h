@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "m17_utils.h"
-#include <QDebug>
+//#include <QDebug>
 
 /** character map for the C version */
 const char * c_charMap = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
@@ -278,7 +278,7 @@ static void build_c_streamFrame(char * frame_out, char * dest_address, char * so
             ++idx;
         }
         // add the CRC to the end two bytes
-        qDebug()<<"idx:"<<idx<<"index of start of frame number before data chunk:"<<idx-18;
+//        qDebug()<<"idx:"<<idx<<"index of start of frame number before data chunk:"<<idx-18;
         uint16_t crc = crc_ccitt_cbuild(&out[idx - 18], 18); // start after LICH and get CRC on frame # and payload bytes (18)
         out[idx + 1] = (crc & 0xFF);
         crc >>= 8;

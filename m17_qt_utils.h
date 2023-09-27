@@ -6,7 +6,7 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <QString>
-#include <QDebug>
+//#include <QDebug>
 
 /** character map used to encode textual addresses into base 40 */
 const QString q_charMap = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
@@ -234,10 +234,10 @@ static QByteArray build_qstreamFrame(QByteArray dest, QByteArray source, QByteAr
             if(frameNum < 256) out.append(ba_ZERO);
             out.append(QByteArray::fromHex(QString::number(frameNum, 16).toLatin1()).append(chunk));
         }
-        qDebug()<<"Qt out frame before CRC:"<<out.length()<<out;
+//        qDebug()<<"Qt out frame before CRC:"<<out.length()<<out;
         quint16 crc = crc_ccitt_qbuild(out.mid(out.length() - 18));
         QByteArray CRC;
-        qDebug()<<crc<<CRC.setNum(crc, 16);
+//        qDebug()<<crc<<CRC.setNum(crc, 16);
         out.append(QByteArray::fromHex(CRC.setNum(crc, 16)));
     }
     return out;

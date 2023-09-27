@@ -2,7 +2,7 @@
 #include "m17_qt_utils.h"
 #include "m17_c_utils.h"
 #include "m17_cpp_utils.h"
-//#include <stdlib.h>
+
 #include <QDebug>
 
 int main(int argc, char *argv[])

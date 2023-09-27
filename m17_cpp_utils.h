@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include <QDebug>
+//#include <QDebug>
 /** character map for the C++ stdlib version */
 const std::string std_string_charMap = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
 
@@ -133,7 +133,7 @@ static std::vector<uint8_t> build_cpp_LSF(std::vector<uint8_t> dest, std::vector
         crc >>= 8;
     }
 
-    qDebug()<<"cpp CRC:"<<v;
+//    qDebug()<<"cpp CRC:"<<v;
     out.insert(out.end(), v.begin(), v.end());
 
     return out;
@@ -228,7 +228,7 @@ static std::vector<uint8_t> build_cpp_streamFrame(std::string dest_address, std:
     uint32_t chunkCount = data_in.size() / 16;
     if((data_in.size() % 16) > 0) ++chunkCount;
     uint32_t lastChunkSize = data_in.size() %16;
-    qDebug()<<data_in.size()<<data_in.size()/16<<chunkCount<<dest_address.c_str()<<source_address.c_str()<<meta_data.c_str()<<data_in;
+//    qDebug()<<data_in.size()<<data_in.size()/16<<chunkCount<<dest_address.c_str()<<source_address.c_str()<<meta_data.c_str()<<data_in;
     // for each chunk build the frame with LICH + Frame # w/EOS Flag, 16 bytes of data and 2 byte CRC
     for(uint32_t i = 0; i < chunkCount; ++i) {
         std::vector<uint8_t>::iterator first = (data_in.begin() + (i * 16));
