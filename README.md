@@ -1,5 +1,10 @@
 README.md for m17_utils repository
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+PLEASE TEST THIS BEFORE YOU PUT IT INTO A PROJECT
+AS THE FIRST RELEASE HAS YET TO BE VALIDATED.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Basic utilities for use with the M17Project.org for framing
 data into/out of an M17 compatible modem.
 
