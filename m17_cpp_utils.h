@@ -173,38 +173,38 @@ static std::vector<uint8_t> build_cpp_LICH(const std::vector<uint8_t> lsf, const
     int32_t idx;
     switch(lich_cnt) {
     case 0:
-        for(idx = 29;idx > 24; --idx) {
-            out.insert(out.begin(), lsf.at(idx));
+        for(idx = 0; idx < 5 ; ++idx) {
+            out.insert(out.end(), lsf.at(idx));
         }
         out.push_back(zero);
         break;
     case 1:
-        for(idx = 24;idx > 19; --idx) {
-            out.insert(out.begin(), lsf.at(idx));
+        for(idx = 5;idx < 10; ++idx) {
+            out.insert(out.end(), lsf.at(idx));
         }
         out.push_back(one);
         break;
     case 2:
-        for(idx = 19;idx > 14; --idx) {
-            out.insert(out.begin(), lsf.at(idx));
+        for(idx = 10;idx < 15; ++idx) {
+            out.insert(out.end(), lsf.at(idx));
         }
         out.push_back(two);
         break;
     case 3:
-        for(idx = 14;idx > 9; --idx) {
-            out.insert(out.begin(), lsf.at(idx));
+        for(idx = 15;idx < 20; ++idx) {
+            out.insert(out.end(), lsf.at(idx));
         }
         out.push_back(three);
         break;
     case 4:
-        for(idx = 9;idx > 4; --idx) {
-            out.insert(out.begin(), lsf.at(idx));
+        for(idx = 20;idx < 25; ++idx) {
+            out.insert(out.end(), lsf.at(idx));
         }
         out.push_back(four);
         break;
     case 5:
-        for(idx = 4;idx >= 0; --idx) {
-            out.insert(out.begin(), lsf.at(idx));
+        for(idx = 25;idx < 30; ++idx) {
+            out.insert(out.end(), lsf.at(idx));
         }
         out.push_back(five);
         break;
@@ -212,7 +212,6 @@ static std::vector<uint8_t> build_cpp_LICH(const std::vector<uint8_t> lsf, const
     //qDebug()<<"LICH:"<<out;
     return out;
 }
-#endif // M17_CPP_UTILS_H
 
 static std::vector<uint8_t> build_cpp_streamFrame(std::string dest_address, std::string source_address, std::string meta_data, std::vector<uint8_t> data_in)
 {
@@ -281,3 +280,4 @@ static std::vector<uint8_t> build_cpp_streamFrame(std::string dest_address, std:
 
     return out;
 }
+#endif // M17_CPP_UTILS_H

@@ -184,12 +184,12 @@ static QByteArray build_qLICH(const QByteArray lsf, const int lich_cnt)
     ds.setByteOrder(QDataStream::LittleEndian);
 
     switch(lich_cnt) {
-    case 0:ds<< lsf.mid(25)<<zero;break;
-    case 1:ds<< lsf.mid(20, 5)<<one;break;
-    case 2:ds<< lsf.mid(15, 5)<<two;break;
-    case 3:ds<< lsf.mid(10, 5)<<three;break;
-    case 4:ds<< lsf.mid(5, 5)<<four;break;
-    case 5:ds<< lsf.mid(0, 5)<<five;break;
+    case 0:ds<< lsf.mid(0, 5)<<zero;break;
+    case 1:ds<< lsf.mid(5, 5)<<one;break;
+    case 2:ds<< lsf.mid(10, 5)<<two;break;
+    case 3:ds<< lsf.mid(15, 5)<<three;break;
+    case 4:ds<< lsf.mid(20, 5)<<four;break;
+    case 5:ds<< lsf.mid(25, 5)<<five;break;
     }
     out = out.mid(4); // remove the length int on the front rom the first <<
     //qDebug()<<"LICH:"<<out;
