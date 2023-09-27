@@ -234,8 +234,10 @@ static QByteArray build_qstreamFrame(QByteArray dest, QByteArray source, QByteAr
             if(frameNum < 256) out.append(ba_ZERO);
             out.append(QByteArray::fromHex(QString::number(frameNum, 16).toLatin1()).append(chunk));
         }
-        quint16 crc = crc_ccitt_qbuild(out.mid(6));
+        qDebug()<<"Qt out frame before CRC:"<<out.length()<<out;
+        quint16 crc = crc_ccitt_qbuild(out.mid(out.length() - 18));
         QByteArray CRC;
+        qDebug()<<crc<<CRC.setNum(crc, 16);
         out.append(QByteArray::fromHex(CRC.setNum(crc, 16)));
     }
     return out;

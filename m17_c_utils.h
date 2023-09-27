@@ -211,72 +211,81 @@ static void build_c_LICH(char *lich_out, char * lsf, const int lich_cnt)
     //qDebug()<<"LICH:"<<out;
     return;
 }
-/*tic void build_c_streamFrame(char * frame_out, char * dest_address, char * source_address, char * meta_data, char * data_in)
+
+
+/*
+build_c_LSF(char *lsf_out, char *dest, char *source, char *meta, \
+                        bool isStream = true, int datatype = 1, int encryptionType = 0, \
+                        int encryptionSubtype = 0, int can_type = 0, int reserved = 0)
+*/
+static void build_c_streamFrame(char * frame_out, char * dest_address, char * source_address, char * meta_data, char * data_in, uint32_t data_size)
 {
-    std::vector<uint8_t> out;
     const uint8_t ba_ZERO(0x00);
     // build LSF first using dest, source, and meta
-    const std::vector<uint8_t> lsf = build_cpp_LSF(m17_addr_stdlib_encode(dest_address), m17_addr_stdlib_encode(source_address), meta_data);
-    // Insert the LSF on the front
-    foreach (uint8_t b, lsf) {
-        out.push_back(b);
-    }
+    char dest[6];
+    m17_addr_cencode(&dest[0], dest_address, strlen(dest_address));
+    char source[6];
+    m17_addr_cencode(&source[0], source_address, strlen(source_address));
+    char lsfout[30];
+    build_c_LSF(&lsfout[0], &dest[0], &source[0], meta_data); // 30 bytes
+
+
     //qDebug()<<"out=lsf:"<<out;
+
     // sever data into 16 byte chunks for frame building exercise below
-    uint32_t chunkCount = data_in.size() / 16;
-    if((data_in.size() % 16) > 0) ++chunkCount;
-    uint32_t lastChunkSize = data_in.size() %16;
+    uint32_t chunkCount = data_size / 16;
+    if((data_size % 16) > 0) ++chunkCount;
+    uint32_t outsize = 30 + (chunkCount * 26);
+    // Insert the LSF on the front
+    unsigned char out[outsize];
+    // add the LSF to the output buffer
+    int32_t idx = 0; // start at the beginning! this is our pointer index
+    for (idx = 0; idx < 30; ++idx) {
+        out[idx] = (unsigned char)lsfout[idx];
+    }
+
+    //uint32_t lastChunkSize = data_size % 16;
     //qDebug()<<data.length()<<data.length()/16<<chunkCount<<dest<<source<<meta<<data;
     // for each chunk build the frame with LICH + Frame # w/EOS Flag, 16 bytes of data and 2 byte CRC
-    for(uint32_t i = 0; i < chunkCount; ++i) {
-        std::vector<uint8_t>::iterator first = (data_in.begin() + (i * 16));
-        std::vector<uint8_t>::iterator last;
-        if(i == chunkCount - 1) {
-            last = (first + lastChunkSize);
-        }
-        else {
-            last = (first + 16);
-        }
-        std::vector<uint8_t> chunk(first, last); // each chunk must be 16 bytes or padded right with zeros
-        uint32_t max = 16 - chunk.size();
-        // add zeros to explicitly extend the size of the QByteArray
-        for(uint32_t j = 0; j < max; ++j) {
-            // pad the last batch with zeros
-            //qDebug()<<chunk.length()<<"pad end:";
-            chunk.push_back(ba_ZERO);
-        }
-        //qDebug()<<"i:"<<i<<"chunk:"<<chunk<<chunk.size()<<last-first;
-        uint16_t frameNum = (uint16_t)i; // for use in building output bytes later
-
-
+    for(int frnum = 0; frnum < chunkCount; ++frnum) { // "this"frnum" provides the frame ID
         // now build the lich based on frameNum % 6
-        std::vector<uint8_t> lich = build_cpp_LICH(lsf, i % 6);
-        for(int k = 0; k < 6; ++k) {
-            out.push_back(lich[k]);
+        char lich[6];
+        build_c_LICH(&lich[0], &lsfout[0], frnum % 6);
+        // output the lich
+        for(int j = 0; j < 6; ++j) {
+            out[idx] = lich[j];
+            ++idx;
         }
+
+        // build the chunk from data_in
+        uint8_t chunk[16] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // each chunk must be 16 bytes or padded right with zeros
+        for(int c = frnum * 16, x=0; x < 16; ++c, ++x) {
+            chunk[x] = data_in[c];
+        }
+
         // then create each data packet chunk and append them in order
-        if(i == (chunkCount - 1)) { // last one so set EOS bit
-            frameNum += 32768u; // set left most bit to 1 add value to 0x1000000000000000
+        uint16_t framenum = (uint16_t)frnum; // for use in building output bytes later
+        if(frnum == (chunkCount - 1)) { // last one so set EOS bit
+            framenum += 32768u; // set left most bit to 1 add value to 0x1000000000000000
             //            qDebug()<<"FrameNum last:"<<((frameNum>>8) & 0xFF)<<((frameNum >>0) & 0xFF);
         }
-        //        else {
-        //            qDebug()<<"FrameNum first:"<<((frameNum>>8) & 0xFF)<<(frameNum & 0xFF);
-        //        }
-        out.push_back((uint8_t)((frameNum >> 8) & 0xff));
-        out.push_back((uint8_t)(frameNum & 0xff));
-
+        out[idx + 1] = (framenum & 0xFF);
+        framenum >>= 8;
+        out[idx] = (uint8_t)framenum;
+        idx +=2;
         for(int m = 0; m < 16; ++m) {
-            out.push_back(chunk[m]);
+            out[idx] = chunk[m];
+            ++idx;
         }
-        std::vector<uint8_t> CRC(out.begin() + 6, out.end());
-        uint16_t crc = crc_ccitt_cpp_build(CRC);
-        for (size_t i = 0; i < sizeof(crc); ++i) {
-            out.push_back(crc & 0xFF);
-            crc >>= 8;
-        }
+        // add the CRC to the end two bytes
+        qDebug()<<"idx:"<<idx<<"index of start of frame number before data chunk:"<<idx-18;
+        uint16_t crc = crc_ccitt_cbuild(&out[idx - 18], 18); // start after LICH and get CRC on frame # and payload bytes (18)
+        out[idx + 1] = (crc & 0xFF);
+        crc >>= 8;
+        out[idx] = (crc & 0xFF);
+        memcpy(frame_out, out, outsize);
     }
-
-    return out;
+    return;
 }
-*/
+
 #endif // M17_C_UTILS_H

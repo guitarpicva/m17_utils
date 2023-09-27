@@ -228,7 +228,7 @@ static std::vector<uint8_t> build_cpp_streamFrame(std::string dest_address, std:
     uint32_t chunkCount = data_in.size() / 16;
     if((data_in.size() % 16) > 0) ++chunkCount;
     uint32_t lastChunkSize = data_in.size() %16;
-    //qDebug()<<data.length()<<data.length()/16<<chunkCount<<dest<<source<<meta<<data;
+    qDebug()<<data_in.size()<<data_in.size()/16<<chunkCount<<dest_address.c_str()<<source_address.c_str()<<meta_data.c_str()<<data_in;
     // for each chunk build the frame with LICH + Frame # w/EOS Flag, 16 bytes of data and 2 byte CRC
     for(uint32_t i = 0; i < chunkCount; ++i) {
         std::vector<uint8_t>::iterator first = (data_in.begin() + (i * 16));
@@ -270,12 +270,11 @@ static std::vector<uint8_t> build_cpp_streamFrame(std::string dest_address, std:
         for(int m = 0; m < 16; ++m) {
             out.push_back(chunk[m]);
         }
-        std::vector<uint8_t> CRC(out.begin() + 6, out.end());
-        uint16_t crc = crc_ccitt_cpp_build(CRC);
-        for (size_t i = 0; i < sizeof(crc); ++i) {
+        std::vector<uint8_t> CRC(out.end() - 18, out.end());
+        uint16_t crc = crc_ccitt_cpp_build(CRC);        
             out.push_back(crc & 0xFF);
             crc >>= 8;
-        }
+            out.insert(out.end() - 1, (crc & 0xFF));
     }
 
     return out;
