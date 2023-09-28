@@ -102,7 +102,7 @@ static QByteArray build_qLSF(QByteArray dest, QByteArray source, QByteArray meta
                            uint can_type = 0, uint reserved = 0)
 {
     QByteArray out;
-    out.append(dest).append(source);
+    out.append(m17_addr_qencode(dest)).append(m17_addr_qencode(source));
     quint16 mask = 0; // mask takes in stream type, data type, enc type, enc subtype, can, and reserved bits
     if(isStream) {
         mask =32768; // one in the left most bit 0x1000000000000000
@@ -200,7 +200,7 @@ static QByteArray build_qstreamFrame(QByteArray dest, QByteArray source, QByteAr
 {
     const char ba_ZERO(0x00);
     // build LSF first using dest, source, and meta
-    const QByteArray lsf = build_qLSF(m17_addr_qencode(dest), m17_addr_qencode(source), meta);
+    const QByteArray lsf = build_qLSF(dest, source, meta);
     QByteArray out = lsf;
     //qDebug()<<"out=lsf:"<<out;
     // sever data into 16 byte chunks for frame building exercise below

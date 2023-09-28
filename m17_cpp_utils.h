@@ -94,14 +94,15 @@ static uint16_t crc_ccitt_cpp_build(std::vector<uint8_t> data) {
 }
 
 /** build LSF from components */
-static std::vector<uint8_t> build_cpp_LSF(std::vector<uint8_t> dest, std::vector<uint8_t> source, std::string meta, \
+static std::vector<uint8_t> build_cpp_LSF(std::string dest, std::string source, std::string meta, \
                                           bool isStream = true, uint32_t datatype = 1, uint32_t encryptionType = 0, \
                                           uint32_t encryptionSubtype = 0, uint32_t can_type = 0, uint32_t reserved = 0)
 {
     std::vector<uint8_t> out;
-    out.insert(out.begin(), dest.begin(), dest.end());
-    out.insert(out.end(), source.begin(), source.end());
-
+    std::vector<uint8_t> daddr = m17_addr_stdlib_encode(dest);
+    std::vector<uint8_t> saddr = m17_addr_stdlib_encode(source);
+    out.insert(out.begin(), daddr.begin(), daddr.end());
+    out.insert(out.end(), saddr.begin(), saddr.end());
 
     uint16_t mask = 0; // mask takes in stream type, data type, enc type, enc subtype, can, and reserved bits
     if(isStream) {
@@ -116,30 +117,23 @@ static std::vector<uint8_t> build_cpp_LSF(std::vector<uint8_t> dest, std::vector
     case 2: mask += VOICETYPE; break;
     case 3: mask += VOICEDATA; break;
     }
-    std::vector<uint8_t> v;
-    for (size_t i = 0; i < sizeof(mask); ++i) {
-        v.insert(v.begin(), mask & 0xFF);
-        mask >>= 8;
-    }
-    out.insert(out.end(), v.begin(), v.end());
+
+    out.push_back(mask & 0xFF);
+    mask >>=8;
+    out.insert(out.end() - 1, (mask & 0xFF));
+
+    // add the meta data bytes
     out.insert(out.end(), meta.begin(), meta.end());
 
     // now add the CRC to the end
-    v.clear();
     uint16_t crc = crc_ccitt_cpp_build(out);
-
-    for (size_t i = 0; i < sizeof(crc); ++i) {
-        v.insert(v.begin(), crc & 0xFF);
-        crc >>= 8;
-    }
-
-//    qDebug()<<"cpp CRC:"<<v;
-    out.insert(out.end(), v.begin(), v.end());
+    out.push_back(crc & 0xFF);
+    crc >>=8;
+    out.insert(out.end() - 1, (crc& 0xFF));
 
     return out;
 }
 
-// STILL NEED TO CREATE build LICH function here
 /*
 Link Information Channel (LICH) The LICH allows for late listening and independent de-
 coding to check destination address if the LSF for the current transmission was missed.
@@ -213,15 +207,18 @@ static std::vector<uint8_t> build_cpp_LICH(const std::vector<uint8_t> lsf, const
     return out;
 }
 
-static std::vector<uint8_t> build_cpp_streamFrame(std::string dest_address, std::string source_address, std::string meta_data, std::vector<uint8_t> data_in)
+static std::vector<uint8_t> build_cpp_streamFrame(std::string dest_address,
+                                                  std::string source_address,
+                                                  std::string meta_data,
+                                                  std::vector<uint8_t> data_in)
 {
     std::vector<uint8_t> out;
     const uint8_t ba_ZERO(0x00);
     // build LSF first using dest, source, and meta
-    const std::vector<uint8_t> lsf = build_cpp_LSF(m17_addr_stdlib_encode(dest_address), m17_addr_stdlib_encode(source_address), meta_data);
+    const std::vector<uint8_t> lsf = build_cpp_LSF(dest_address, source_address, meta_data);
     // Insert the LSF on the front
-    foreach (uint8_t b, lsf) {
-        out.push_back(b);
+    for(int i = 0; i < lsf.size(); ++i) {
+        out.push_back(lsf.at(i));
     }
     //qDebug()<<"out=lsf:"<<out;
     // sever data into 16 byte chunks for frame building exercise below
