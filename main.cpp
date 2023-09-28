@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     cppLSF = build_cpp_LSF("AB4MW", "G4KLX", "12345678901234");
     qDebug("\ncppLSF : %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x ", cppLSF[0], cppLSF[1], cppLSF[2], cppLSF[3], cppLSF[4], cppLSF[5], cppLSF[6], cppLSF[7], cppLSF[8], cppLSF[9], cppLSF[10], cppLSF[11], cppLSF[12], cppLSF[13], cppLSF[14]);
     qDebug("         %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",  cppLSF[15], cppLSF[16], cppLSF[17], cppLSF[18], cppLSF[19], cppLSF[20], cppLSF[21], cppLSF[22], cppLSF[23], cppLSF[24], cppLSF[25], cppLSF[26], cppLSF[27], cppLSF[28], cppLSF[29]);
-    //qDebug()<<"LSF stdlib test:"<<cppLSF<<cppLSF.size();
+
     qDebug()<<"\n Build LICH frames";
     qDebug()<<"--------------------------------------------------------------------------------------";
     qDebug().noquote()<<"qLICH for qLSF 0:    "<<build_qLICH(qLSF, 0).toHex(' ');
@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
     qDebug("cppLICH for cppLSF 5: %02x %02x %02x %02x %02x %02x", cpplich[0], cpplich[1], cpplich[2], cpplich[3], cpplich[4], cpplich[5]);
 
     char clichOut[6];
-    //qDebug("%02x %02x %02x %02x %02x %02x", lsfOut[0], lsfOut[1], lsfOut[2], lsfOut[3], lsfOut[4], lsfOut[5]);
     build_c_LICH(&clichOut[0], &lsfOut[0], 0);
     qDebug("\nclichOut 0:           %02x %02x %02x %02x %02x %02x ", (unsigned char)clichOut[0], (unsigned char)clichOut[1], (unsigned char)clichOut[2], (unsigned char)clichOut[3], (unsigned char)clichOut[4], (unsigned char)clichOut[5] );
     build_c_LICH(&clichOut[0], &lsfOut[0], 1);
@@ -134,10 +133,7 @@ int main(int argc, char *argv[])
            strframe[32], strframe[33], strframe[34], strframe[35], strframe[36], strframe[37], strframe[38], strframe[39], strframe[40], strframe[41], strframe[42], strframe[43], strframe[44], strframe[45], strframe[46], strframe[47]);
     qDebug("                       %02x %02x %02x %02x %02x %02x %02x %02x", \
            strframe[48], strframe[49], strframe[50], strframe[51], strframe[52], strframe[53], strframe[54], strframe[55]);
-    //qDebug()<<"build_cpp_streamFrame:"<<strframe<<strframe.size();
 
-//    qDebug()<<"strlen dcall:"<<strlen(dcall);
-//    qDebug()<<"strlen scall:"<<strlen(scall);
     char streamFrame[56];
 
     char cdata[15] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', 0};

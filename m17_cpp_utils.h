@@ -70,6 +70,27 @@ static std::string m17_addr_stdlib_decode(int64_t encoded) {
 // residue=0x0000 name="CRC-16/M17"
 /** C++ stdlib version of building a CRC value based on CRC-16/M17 */
 static uint16_t crc_ccitt_cpp_build(std::vector<uint8_t> data) {
+
+    /** CRC code adapted from http://www.zorc.breitbandkatze.de/crctester.c
+ *  CRC tester v1.3 written on 4th of February 2003 by Sven Reifegerste (zorc/reflex)
+ *  CRC configuration for M17:
+ *  width=16 poly=0x5935 init=0xffff refin=false refout=false xorout=0x0000 check=0x772b
+ *  residue=0x0000 name="CRC-16/M17"
+*/
+    const int32_t order = 16;
+    const uint64_t polynom = 0x5935;
+    const int32_t direct = 1;
+    const uint64_t crcinit = 0xffff;
+    const uint64_t crcxor = 0x0000;
+    const int32_t refin = 0;
+    const int32_t refout = 0;
+
+    /** internal global CRC values: */
+    // compute constant bit masks for whole CRC and CRC high bit
+    uint64_t crcmask = ((((uint64_t)1<<(order-1))-1)<<1)|1;;
+    uint64_t crchighbit = (uint64_t)1<<(order-1);
+    uint64_t crcinit_direct = crcinit;
+
     uint64_t len = data.size();
     uint64_t i, j, c, bit;
     uint64_t crc = crcinit;
@@ -111,6 +132,9 @@ static std::vector<uint8_t> build_cpp_LSF(std::string dest, std::string source, 
 
     //qDebug()<<"Stream Mask:"<<mask;
     // data type 00 res, 01 data, 10 voice, 11 voice  + data
+    const uint16_t DATATYPE = 8192U;
+    const uint16_t VOICETYPE = 16384U;
+    const uint16_t VOICEDATA = 24576U;
     switch(datatype) {
     case 0:break; // equiv to mask += 0;
     case 1: mask += DATATYPE; break;

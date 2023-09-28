@@ -68,16 +68,31 @@ static QByteArray m17_addr_qdecode(const QByteArray encoded) {
 
 /** Qt version of building a CRC value based on CRC-16/M17 */
 static quint16 crc_ccitt_qbuild(const QByteArray data) {
-    unsigned long i, j, c, bit, len;
-    unsigned long crc = crcinit;
+
+    const qint32 order = 16;
+    const quint64 polynom = 0x5935;
+    const qint32 direct = 1;
+    const quint64 crcinit = 0xffff;
+    const quint64 crcxor = 0x0000;
+    const qint32 refin = 0;
+    const qint32 refout = 0;
+
+    /** internal global CRC values: */
+    // compute constant bit masks for whole CRC and CRC high bit
+    uint64_t crcmask = ((((uint64_t)1<<(order-1))-1)<<1)|1;;
+    uint64_t crchighbit = (uint64_t)1<<(order-1);
+    uint64_t crcinit_direct = crcinit;
+
+    uint64_t i, j, c, bit, len;
+    uint64_t crc = crcinit;
     len = data.length();
-    unsigned char * p = (unsigned char*) data.data();
+    uint8_t * p = (uint8_t *) data.data();
 
     // fast bit by bit algorithm without augmented zero bytes.
 
     for (i=0; i<len; i++) {
 
-        c = (unsigned long)*p++;
+        c = (uint64_t)*p++;
         //if (refin) c = reflect(c, 8);
 
         for (j=0x80; j; j>>=1) {
@@ -101,6 +116,9 @@ static QByteArray build_qLSF(QByteArray dest, QByteArray source, QByteArray meta
                            bool isStream = true, uint datatype = 1, uint encryptionType = 0, uint encryptionSubtype = 0, \
                            uint can_type = 0, uint reserved = 0)
 {
+    const uint16_t DATATYPE = 8192U;
+    const uint16_t VOICETYPE = 16384U;
+    const uint16_t VOICEDATA = 24576U;
     QByteArray out;
     out.append(m17_addr_qencode(dest)).append(m17_addr_qencode(source));
     quint16 mask = 0; // mask takes in stream type, data type, enc type, enc subtype, can, and reserved bits
