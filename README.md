@@ -21,8 +21,8 @@ Coming soon:
 Data Frame generation
 
 
-To use, include the m17_utils.h and one of c, cpp, or qt header file
-depending on your project needs.
+To use, include the header file you need into your project.
+All functions are static.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
