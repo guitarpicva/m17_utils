@@ -1,8 +1,6 @@
 #ifndef M17_QT_UTILS_H
 #define M17_QT_UTILS_H
 
-#include "m17_utils.h"
-
 #include <QByteArray>
 #include <QDataStream>
 #include <QString>

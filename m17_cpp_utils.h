@@ -1,8 +1,6 @@
 #ifndef M17_CPP_UTILS_H
 #define M17_CPP_UTILS_H
 
-#include "m17_utils.h"
-
 #include <stdlib.h>
 #include <string>
 #include <vector>
